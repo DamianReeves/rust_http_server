@@ -1,5 +1,5 @@
 use std::{
-    io::Read,
+    io::{Read, Write},
     net::{TcpListener, TcpStream},
 };
 
@@ -23,9 +23,12 @@ impl Server {
                     let mut buf = [0; 1024];
                     stream.read(&mut buf).unwrap();
                     println!("{}", String::from_utf8_lossy(&buf));
+                    stream.write(&buf).unwrap();
+                    stream.flush().unwrap();
+                    stream.shutdown(std::net::Shutdown::Both).unwrap();
                 }
                 Err(e) => {
-                    println!("Error: {}", e);
+                    println!("Failed to establish a connection: {}", e);
                 }
             };
         }
