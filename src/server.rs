@@ -27,25 +27,26 @@ impl Server {
                         Ok(n) => {
                             println!("Read {} bytes", n);
                             println!("{}", String::from_utf8_lossy(&buf));
-                            write!(
-                                stream,
-                                "{}",
-                                Response::new(
-                                    StatusCode::Ok,
-                                    Some("<h1>Hello, world!</h1>".to_string())
-                                )
-                            )
-                            .unwrap();
-                            match Request::try_from(&buf[..n]) {
+                            let response = match Request::try_from(&buf[..n]) {
                                 Ok(request) => {
                                     println!("{:?}", request);
+                                    Response::new(
+                                        StatusCode::Ok,
+                                        Some("<h1>Hello From Rust!</h1>".to_string()),
+                                    )
                                 }
                                 Err(e) => {
-                                    println!("{}", e);
+                                    println!("Failed to parse request: {}", e);
+                                    Response::new(StatusCode::BadRequest, None)
                                 }
+                            };
+                            if let Err(e) = response.send(&mut stream) {
+                                println!("Failed to send response: {}", e);
                             }
                         }
-                        Err(e) => println!("Failed to read from connection: {}", e),
+                        Err(e) => {
+                            println!("Failed to read from connection: {}", e);
+                        }
                     }
                     stream.flush().unwrap();
                     stream.shutdown(std::net::Shutdown::Both).unwrap();
