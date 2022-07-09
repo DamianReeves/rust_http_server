@@ -1,4 +1,6 @@
+use crate::http::Request;
 use std::{
+    convert::TryFrom,
     io::{Read, Write},
     net::{TcpListener, TcpStream},
 };
@@ -26,8 +28,14 @@ impl Server {
                             println!("Read {} bytes", n);
                             println!("{}", String::from_utf8_lossy(&buf));
                             stream.write(&buf).unwrap();
-                            //let request = Request::parse(&buf[..n]);
-                            //println!("{:?}", request);
+                            match Request::try_from(&buf[..n]) {
+                                Ok(request) => {
+                                    println!("{:?}", request);
+                                }
+                                Err(e) => {
+                                    println!("{}", e);
+                                }
+                            }
                         }
                         Err(e) => println!("Failed to read from connection: {}", e),
                     }
