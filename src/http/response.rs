@@ -16,7 +16,7 @@ impl Response {
         Response { status_code, body }
     }
 
-    pub fn send(&self, f: &mut dyn Write) -> IoResult<()> {
+    pub fn send(&self, f: &mut impl Write) -> IoResult<()> {
         write!(
             f,
             "HTTP/1.1 {} {}\r\n\r\n{}",
