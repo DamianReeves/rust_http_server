@@ -21,9 +21,16 @@ impl Server {
                 Ok((mut stream, addr)) => {
                     println!("Accepted connection from {}", addr);
                     let mut buf = [0; 1024];
-                    stream.read(&mut buf).unwrap();
-                    println!("{}", String::from_utf8_lossy(&buf));
-                    stream.write(&buf).unwrap();
+                    match stream.read(&mut buf) {
+                        Ok(n) => {
+                            println!("Read {} bytes", n);
+                            println!("{}", String::from_utf8_lossy(&buf));
+                            stream.write(&buf).unwrap();
+                            //let request = Request::parse(&buf[..n]);
+                            //println!("{:?}", request);
+                        }
+                        Err(e) => println!("Failed to read from connection: {}", e),
+                    }
                     stream.flush().unwrap();
                     stream.shutdown(std::net::Shutdown::Both).unwrap();
                 }
