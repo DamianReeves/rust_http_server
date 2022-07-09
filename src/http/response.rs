@@ -1,7 +1,6 @@
 use std::{
     fmt::{Display, Formatter, Result as FmtResult},
     io::{Result as IoResult, Write},
-    net::TcpStream,
 };
 
 use super::StatusCode;
@@ -17,7 +16,7 @@ impl Response {
         Response { status_code, body }
     }
 
-    pub fn send(&self, f: &mut TcpStream) -> IoResult<()> {
+    pub fn send(&self, f: &mut dyn Write) -> IoResult<()> {
         write!(
             f,
             "HTTP/1.1 {} {}\r\n\r\n{}",

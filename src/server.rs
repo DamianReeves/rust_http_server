@@ -32,7 +32,9 @@ impl Server {
                                     println!("{:?}", request);
                                     Response::new(
                                         StatusCode::Ok,
-                                        Some("<h1>Hello From Rust!</h1>".to_string()),
+                                        Some(
+                                            "<h1>Hello From Rust! You Animals!!!</h1>".to_string(),
+                                        ),
                                     )
                                 }
                                 Err(e) => {
