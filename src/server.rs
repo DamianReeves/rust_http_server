@@ -2,7 +2,7 @@ use crate::http::Request;
 use std::{
     convert::TryFrom,
     io::{Read, Write},
-    net::{TcpListener, TcpStream},
+    net::TcpListener,
 };
 
 pub struct Server {
