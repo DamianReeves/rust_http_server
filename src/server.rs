@@ -1,4 +1,4 @@
-use crate::http::Request;
+use crate::http::{Request, Response, StatusCode};
 use std::{
     convert::TryFrom,
     io::{Read, Write},
@@ -27,7 +27,15 @@ impl Server {
                         Ok(n) => {
                             println!("Read {} bytes", n);
                             println!("{}", String::from_utf8_lossy(&buf));
-                            stream.write(&buf).unwrap();
+                            write!(
+                                stream,
+                                "{}",
+                                Response::new(
+                                    StatusCode::Ok,
+                                    Some("<h1>Hello, world!</h1>".to_string())
+                                )
+                            )
+                            .unwrap();
                             match Request::try_from(&buf[..n]) {
                                 Ok(request) => {
                                     println!("{:?}", request);
