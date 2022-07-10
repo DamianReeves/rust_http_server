@@ -1,9 +1,18 @@
-use crate::http::{Request, Response, StatusCode};
+use crate::http::{ParseError, Request, Response, StatusCode};
 use std::{
     convert::TryFrom,
     io::{Read, Write},
     net::TcpListener,
 };
+
+pub trait Handler {
+    fn handle_request(&mut self, request: &Request) -> Response;
+
+    fn handle_bad_request(&mut self, e: &ParseError) -> Response {
+        println!("Failed to parse request: {}", e);
+        Response::new(StatusCode::BadRequest, None)
+    }
+}
 
 pub struct Server {
     addr: String,
@@ -14,7 +23,7 @@ impl Server {
         Server { addr }
     }
 
-    pub fn run(self) {
+    pub fn run(self, mut handler: impl Handler) {
         let listener = TcpListener::bind(&self.addr).unwrap();
         println!("Listening on {}", listener.local_addr().unwrap());
 
@@ -28,19 +37,8 @@ impl Server {
                             println!("Read {} bytes", n);
                             println!("{}", String::from_utf8_lossy(&buf));
                             let response = match Request::try_from(&buf[..n]) {
-                                Ok(request) => {
-                                    println!("{:?}", request);
-                                    Response::new(
-                                        StatusCode::Ok,
-                                        Some(
-                                            "<h1>Hello From Rust! You Animals!!!</h1>".to_string(),
-                                        ),
-                                    )
-                                }
-                                Err(e) => {
-                                    println!("Failed to parse request: {}", e);
-                                    Response::new(StatusCode::BadRequest, None)
-                                }
+                                Ok(request) => handler.handle_request(&request),
+                                Err(e) => handler.handle_bad_request(&e),
                             };
                             if let Err(e) = response.send(&mut stream) {
                                 println!("Failed to send response: {}", e);

@@ -9,9 +9,9 @@ use std::{
 
 #[derive(Debug)]
 pub struct Request<'buf> {
-    path: &'buf str,
-    query_string: Option<QueryString<'buf>>,
-    method: Method,
+    pub path: &'buf str,
+    pub query_string: Option<QueryString<'buf>>,
+    pub method: Method,
 }
 
 impl<'buf> TryFrom<&'buf [u8]> for Request<'buf> {
